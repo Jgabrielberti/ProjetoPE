@@ -25,8 +25,8 @@ def main():
     print(f"Municípios únicos: {df['id_municipio'].nunique()}")
     print(f"Intervalo de anos: {df['ano'].min()} - {df['ano'].max()}\n")
 
-    municipio_id = int(input("Digite id_municipio (ex: 2604106): ").strip())
-    bioma = input("Digite o bioma ao qual a cidade pertence (Ex: Mata Atlântica): ")
+    municipio_id = int(input("Digite id_municipio (ex: 1100304): ").strip())
+    bioma = input("Digite o bioma ao qual a cidade pertence (Ex: Cerrado): ")
 
     df_filtrado = get_municipio_df(municipio_id, bioma, df)
     print(f"\nEncontradas {len(df_filtrado)} linhas para o município {municipio_id} "
@@ -56,7 +56,7 @@ def main():
 
     models_with_validation = [
         ("Variância", result_variance.get("validation_predictions", {})),
-        ("Moving Average", result_ma.get("validation_predictions", {})),
+        ("Janela de Média(3)", result_ma.get("validation_predictions", {})),
         ("Regressão Linear", result_lr.get("validation_predictions", {})),
         ("Random Forest", result_rf.get("validation_predictions", {})),
         ("ARIMA", result_arima.get("validation_predictions", {}))

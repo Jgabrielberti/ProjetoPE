@@ -32,22 +32,44 @@ class ModelEvaluator:
             return {}
 
         mask = ~np.isnan(pred_vals)
-        if np.sum(mask) == 0:
+        if np.sum(mask) < 2:
             return {}
 
         true_filtered = true_vals[mask]
         pred_filtered = pred_vals[mask]
 
-        if len(true_filtered) == 0:
-            return {}
+        rmse = np.sqrt(mean_squared_error(true_filtered, pred_filtered))
+        mae = mean_absolute_error(true_filtered, pred_filtered)
 
-        return {
-            "RMSE": np.sqrt(mean_squared_error(true_filtered, pred_filtered)),
-            "MAE": mean_absolute_error(true_filtered, pred_filtered),
-            "MAPE": np.mean(np.abs((true_filtered - pred_filtered) / true_filtered)) * 100,
-            "R²": r2_score(true_filtered, pred_filtered),
-            "Bias": np.mean(pred_filtered - true_filtered)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            mape = np.mean(np.abs((true_filtered - pred_filtered) / true_filtered)) * 100
+            mape = np.nan if np.isnan(mape) else mape
+
+        bias = np.mean(pred_filtered - true_filtered)
+
+        ss_res = np.sum((true_filtered - pred_filtered) ** 2)
+        ss_tot = np.sum((true_filtered - np.mean(true_filtered)) ** 2)
+
+        if ss_tot < 1e-10 or len(true_filtered) < 2:
+            r_squared = None
+        else:
+            r_squared = 1 - (ss_res / ss_tot)
+            if r_squared < -10:
+                r_squared = None
+
+        metrics = {
+            "RMSE": rmse,
+            "MAE": mae,
+            "Bias": bias
         }
+
+        if mape is not None and not np.isnan(mape):
+            metrics["MAPE"] = mape
+
+        if r_squared is not None:
+            metrics["R²"] = r_squared
+
+        return metrics
 
     def generate_comparison_table(self):
         if self.true_values is None:
