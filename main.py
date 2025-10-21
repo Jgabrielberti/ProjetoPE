@@ -10,6 +10,7 @@ from model import (
     predict_arima,
 )
 from evaluation.model_evaluator import ModelEvaluator
+from mapa_calor import criar_mapa_calor
 
 def main():
     raw_path = r"C:\Users\Usuario\PycharmProjects\ProjetoPE\data_raw\br_inpe_prodes_municipio_bioma.csv"
@@ -24,6 +25,8 @@ def main():
     print(f"Total de linhas: {len(df)}")
     print(f"Municípios únicos: {df['id_municipio'].nunique()}")
     print(f"Intervalo de anos: {df['ano'].min()} - {df['ano'].max()}\n")
+
+
 
     municipio_id = int(input("Digite id_municipio (ex: 1100304): ").strip())
     bioma = input("Digite o bioma ao qual a cidade pertence (Ex: Cerrado): ")
@@ -76,6 +79,7 @@ def main():
     except Exception as e:
         print(f"\nErro ao salvar arquivos: {e}")
 
+    criar_mapa_calor(df)
 
 if __name__ == "__main__":
     main()
